@@ -58,11 +58,14 @@ def create_struct(conn):
                                     betten_belegt_nur_erwachsen integer NOT NULL,
                                     betten_frei_nur_erwachsen integer NOT NULL
                                 );"""
-
-    conn.execute(kh_liste)
-    conn.execute(kh_meldebereiche)
-    conn.execute(kh_status)
-    conn.execute(fallzahlen)
+    try:
+        conn.execute(kh_liste)
+        conn.execute(kh_meldebereiche)
+        conn.execute(kh_status)
+        conn.execute(fallzahlen)
+    except:
+        print("Error Creating schama")
+        exit(1)
 
 #
 # Fallzahlen SQL Methoden
@@ -121,23 +124,26 @@ def bettenstatus_not_exists(conn, date):
         return False
 
 def add_kh(kh):
-    conn = create_connection()
-    if kh_not_exists(conn, kh.id):
-        sql = ''' INSERT INTO krankenhaus(id,bezeichnung,strasse,plz,ort,bundesland,ikNummer,position,gemeindeschluessel) VALUES(?,?,?,?,?,?,?,?,?) '''
-        cur = conn.cursor()
-        cur.execute(sql, (kh.id,kh.bezeichnung,kh.strasse,kh.plz,kh.ort,kh.bundesland,kh.ikNummer,kh.position,kh.gemeindeschluessel))
-        conn.commit()
-
-    for meldebereich in kh.meldebereiche: 
-        if meldebereich_not_exists(conn, meldebereich.meldebereichId):
-            sql = ''' INSERT INTO meldebereiche(meldebereichId,kh_id,ardsNetzwerkMitglied,meldebereichBezeichnung,behandlungsschwerpunktL1,behandlungsschwerpunktL2,behandlungsschwerpunktL3) VALUES(?,?,?,?,?,?,?) '''
+    try:
+        conn = create_connection()
+        if kh_not_exists(conn, kh.id):
+            sql = ''' INSERT INTO krankenhaus(id,bezeichnung,strasse,plz,ort,bundesland,ikNummer,position,gemeindeschluessel) VALUES(?,?,?,?,?,?,?,?,?) '''
             cur = conn.cursor()
-            cur.execute(sql, (meldebereich.meldebereichId,kh.id,meldebereich.ardsNetzwerkMitglied,meldebereich.meldebereichBezeichnung,meldebereich.behandlungsschwerpunktL1,meldebereich.behandlungsschwerpunktL2,meldebereich.behandlungsschwerpunktL3))
+            cur.execute(sql, (kh.id,kh.bezeichnung,kh.strasse,kh.plz,kh.ort,kh.bundesland,kh.ikNummer,kh.position,kh.gemeindeschluessel))
             conn.commit()
 
-    if bettenstatus_not_exists(conn, kh.letzteMeldezeitpunkt):
-        sql = ''' INSERT INTO bettenstatus(kh_id,maxBettenStatusEinschaetzungEcmo,maxBettenStatusEinschaetzungHighCare,maxBettenStatusEinschaetzungLowCare,letzteMeldezeitpunkt) VALUES(?,?,?,?,?) '''
-        cur = conn.cursor()
-        cur.execute(sql, (kh.id,kh.maxBettenStatusEinschaetzungEcmo,kh.maxBettenStatusEinschaetzungHighCare,kh.maxBettenStatusEinschaetzungLowCare,kh.letzteMeldezeitpunkt))
-        conn.commit()
-    conn.close()
+        for meldebereich in kh.meldebereiche: 
+            if meldebereich_not_exists(conn, meldebereich.meldebereichId):
+                sql = ''' INSERT INTO meldebereiche(meldebereichId,kh_id,ardsNetzwerkMitglied,meldebereichBezeichnung,behandlungsschwerpunktL1,behandlungsschwerpunktL2,behandlungsschwerpunktL3) VALUES(?,?,?,?,?,?,?) '''
+                cur = conn.cursor()
+                cur.execute(sql, (meldebereich.meldebereichId,kh.id,meldebereich.ardsNetzwerkMitglied,meldebereich.meldebereichBezeichnung,meldebereich.behandlungsschwerpunktL1,meldebereich.behandlungsschwerpunktL2,meldebereich.behandlungsschwerpunktL3))
+                conn.commit()
+
+        if bettenstatus_not_exists(conn, kh.letzteMeldezeitpunkt):
+            sql = ''' INSERT INTO bettenstatus(kh_id,maxBettenStatusEinschaetzungEcmo,maxBettenStatusEinschaetzungHighCare,maxBettenStatusEinschaetzungLowCare,letzteMeldezeitpunkt) VALUES(?,?,?,?,?) '''
+            cur = conn.cursor()
+            cur.execute(sql, (kh.id,kh.maxBettenStatusEinschaetzungEcmo,kh.maxBettenStatusEinschaetzungHighCare,kh.maxBettenStatusEinschaetzungLowCare,kh.letzteMeldezeitpunkt))
+            conn.commit()
+        conn.close()
+    except:
+        pass
