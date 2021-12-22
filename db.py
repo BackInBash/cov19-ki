@@ -78,13 +78,16 @@ def fallzahl_not_exists(conn, date):
         return False
 
 def add_fallzahl(fall):
-    conn = create_connection()
-    if kh_not_exists(conn, fall.datum):
-        sql = ''' INSERT INTO fallzahlen(datum,bundesland,gemeindeschluessel,anzahl_standorte,anzahl_meldebereiche,faelle_covid_aktuell,faelle_covid_aktuell_invasiv_beatmet,betten_frei,betten_belegt,betten_belegt_nur_erwachsen,betten_frei_nur_erwachsen) VALUES(?,?,?,?,?,?,?,?,?,?,?) '''
-        cur = conn.cursor()
-        cur.execute(sql, (fall.datum,fall.bundesland,fall.gemeindeschluessel,fall.anzahl_standorte,fall.anzahl_meldebereiche,fall.faelle_covid_aktuell,fall.faelle_covid_aktuell_invasiv_beatmet,fall.betten_frei,fall.betten_belegt,fall.betten_belegt_nur_erwachsen,fall.betten_frei_nur_erwachsen))
-        conn.commit()
-    conn.close()
+    try:
+        conn = create_connection()
+        if fallzahl_not_exists(conn, fall.datum):
+            sql = ''' INSERT INTO fallzahlen(datum,bundesland,gemeindeschluessel,anzahl_standorte,anzahl_meldebereiche,faelle_covid_aktuell,faelle_covid_aktuell_invasiv_beatmet,betten_frei,betten_belegt,betten_belegt_nur_erwachsen,betten_frei_nur_erwachsen) VALUES(?,?,?,?,?,?,?,?,?,?,?) '''
+            cur = conn.cursor()
+            cur.execute(sql, (fall.datum,fall.bundesland,fall.gemeindeschluessel,fall.anzahl_standorte,fall.anzahl_meldebereiche,fall.faelle_covid_aktuell,fall.faelle_covid_aktuell_invasiv_beatmet,fall.betten_frei,fall.betten_belegt,fall.betten_belegt_nur_erwachsen,fall.betten_frei_nur_erwachsen))
+            conn.commit()
+        conn.close()
+    except:
+        pass
 
 #
 # Krankenhaus SQL Methoden

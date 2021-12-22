@@ -101,5 +101,5 @@ def csv_import_landkreis():
         row[10])
         add_fallzahl(fall)
 
-#import_kh()
+import_kh()
 csv_import_landkreis()
