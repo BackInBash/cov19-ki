@@ -1,0 +1,40 @@
+{
+    "krankenhausStandort": {
+        "id": "772842",
+        "bezeichnung": "Städtisches Klinikum Dresden, Städtisches Klinikum Dresden - Standort Friedrichstadt",
+        "strasse": "Friedrichstraße",
+        "hausnummer": "41",
+        "plz": "01067",
+        "ort": "Dresden",
+        "bundesland": "SACHSEN",
+        "ikNummer": "261400949",
+        "position": {
+            "latitude": 51.059519822296,
+            "longitude": 13.718164444035
+        },
+        "gemeindeschluessel": "14612000"
+    },
+    "letzteMeldezeitpunkt": "2021-12-22T07:23:24Z",
+    "oldestMeldezeitpunkt": "2021-12-22T06:52:53Z",
+    "meldebereiche": [
+        {
+            "meldebereichId": "d60d5a83-6c40-4a2c-8adf-2177db967be2",
+            "ardsNetzwerkMitglied": "UNBEKANNT",
+            "meldebereichBezeichnung": "Standort Friedrichstadt, Zentrum für internistische Intensiv- und Notfallmedizin, Internistische Intensivstation H4",
+            "behandlungsschwerpunktL1": "ERWACHSENE",
+            "behandlungsschwerpunktL2": null,
+            "behandlungsschwerpunktL3": null
+        },
+        {
+            "meldebereichId": "4bf3dee6-b1fe-45f5-8395-2236d2a23fb4",
+            "ardsNetzwerkMitglied": "NEIN",
+            "meldebereichBezeichnung": "Standort Friedrichstadt, Klinik für Anästhesiologie und Intensivmedizin, Notfallmedizin und Schmerztherapie,Intensivstation C127",
+            "behandlungsschwerpunktL1": "ERWACHSENE",
+            "behandlungsschwerpunktL2": null,
+            "behandlungsschwerpunktL3": null
+        }
+    ],
+    "maxBettenStatusEinschaetzungEcmo": "NICHT_VERFUEGBAR",
+    "maxBettenStatusEinschaetzungHighCare": "BEGRENZT",
+    "maxBettenStatusEinschaetzungLowCare": "VERFUEGBAR"
+}
