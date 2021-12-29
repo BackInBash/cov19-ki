@@ -3,7 +3,7 @@ import sqlite3
 from sqlite3 import Error
 import threading
 
-threadLimiter = threading.BoundedSemaphore(1)
+threadLimiter = threading.BoundedSemaphore(2)
 lock = threading.Lock()
 
 def create_connection():

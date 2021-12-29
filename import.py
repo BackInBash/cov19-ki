@@ -7,7 +7,7 @@ from uuid import UUID
 import requests
 import csv
 from io import StringIO
-import time
+import re
 
 # Data Classes
 
@@ -93,23 +93,12 @@ def csv_import_landkreis():
     data = csv.reader(StringIO(requests.get("https://diviexchange.blob.core.windows.net/%24web/zeitreihe-tagesdaten.csv").text))
     # Skip CSV Header
     next(data)
+    sql = """INSERT INTO "fallzahlen" ("datum","bundesland","gemeindeschluessel","anzahl_standorte","anzahl_meldebereiche","faelle_covid_aktuell","faelle_covid_aktuell_invasiv_beatmet","betten_frei","betten_belegt","betten_belegt_nur_erwachsen","betten_frei_nur_erwachsen") VALUES """
     for row in data:
-        fall = Fallzahlen(row[0],
-        row[1],
-        row[2],
-        row[3],
-        row[4],
-        row[5],
-        row[6],
-        row[7],
-        row[8],
-        row[9],
-        row[10])
-        while sum(is_thread_running(x) for x in threads) > 1000:
-            pass
-        t = threading.Thread(target=add_fallzahl, args=(fall,))
-        t.start()
-        threads.append(t)
+        sql = sql+"('"+row[0]+"',"+row[1]+","+row[2]+","+row[3]+","+row[4]+","+row[5]+","+row[6]+","+row[7]+","+row[8]+","+row[9]+","+row[10]+"),"
+    sql = re.sub(r'.$', ';', sql)
+    execute_sql(sql)
+
 
 def is_thread_running(x):
     if x.is_alive():
@@ -118,9 +107,8 @@ def is_thread_running(x):
         return 0
 
 create_struct()
-#import_kh()
-#csv_import_landkreis()
-test()
+import_kh()
+csv_import_landkreis()
 
 for t in threads:
     t.join()
