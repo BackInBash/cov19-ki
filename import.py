@@ -1,11 +1,13 @@
 # Import Data from intensivregister.de to SQLite DB
 
-from db import create_struct, add_kh, add_fallzahl
+import threading
+from db import create_struct, add_kh, add_fallzahl, write_to_file, execute_sql
 from dataclasses import dataclass
 from uuid import UUID
 import requests
 import csv
 from io import StringIO
+import time
 
 # Data Classes
 
@@ -50,6 +52,8 @@ class Fallzahlen:
     betten_belegt_nur_erwachsen: int
     betten_frei_nur_erwachsen: int
 
+threads = []
+
 def import_kh():
     data = requests.get("https://www.intensivregister.de/api/public/intensivregister").json()
     for object in data['data']:
@@ -81,7 +85,9 @@ def import_kh():
         object['letzteMeldezeitpunkt'],
         )
 
-        add_kh(kh)
+        t = threading.Thread(target=add_kh, args=(kh,))
+        t.start()
+        threads.append(t)
 
 def csv_import_landkreis():
     data = csv.reader(StringIO(requests.get("https://diviexchange.blob.core.windows.net/%24web/zeitreihe-tagesdaten.csv").text))
@@ -99,7 +105,24 @@ def csv_import_landkreis():
         row[8],
         row[9],
         row[10])
-        add_fallzahl(fall)
+        while sum(is_thread_running(x) for x in threads) > 1000:
+            pass
+        t = threading.Thread(target=add_fallzahl, args=(fall,))
+        t.start()
+        threads.append(t)
 
-import_kh()
-csv_import_landkreis()
+def is_thread_running(x):
+    if x.is_alive():
+        return 1
+    else:
+        return 0
+
+create_struct()
+#import_kh()
+#csv_import_landkreis()
+test()
+
+for t in threads:
+    t.join()
+
+write_to_file()

@@ -1,18 +1,28 @@
 # Create SQLite Database
 import sqlite3
 from sqlite3 import Error
+import threading
+
+threadLimiter = threading.BoundedSemaphore(1)
+lock = threading.Lock()
 
 def create_connection():
     """ create a database connection to a SQLite database """
     conn = None
     try:
-        conn = sqlite3.connect("data.db")
-        create_struct(conn)
+        conn = sqlite3.connect("file:data.db?cache=shared", uri=True)
         return conn
     except Error as e:
         print(e)
 
-def create_struct(conn):
+def write_to_file():
+    con = create_connection()
+    with open('dump.sql', 'w') as f:
+        for line in con.iterdump():
+            f.write('%s\n' % line)
+
+def create_struct():
+    conn = create_connection()
     kh_liste = """CREATE TABLE IF NOT EXISTS krankenhaus (
                                         id integer PRIMARY KEY,
                                         bezeichnung text NOT NULL,
@@ -63,6 +73,7 @@ def create_struct(conn):
         conn.execute(kh_meldebereiche)
         conn.execute(kh_status)
         conn.execute(fallzahlen)
+        conn.close()
     except:
         print("Error Creating schama")
         exit(1)
@@ -82,6 +93,8 @@ def fallzahl_not_exists(conn, date):
 
 def add_fallzahl(fall):
     try:
+        threadLimiter.acquire()
+        lock.acquire(True)
         conn = create_connection()
         if fallzahl_not_exists(conn, fall.datum):
             sql = ''' INSERT INTO fallzahlen(datum,bundesland,gemeindeschluessel,anzahl_standorte,anzahl_meldebereiche,faelle_covid_aktuell,faelle_covid_aktuell_invasiv_beatmet,betten_frei,betten_belegt,betten_belegt_nur_erwachsen,betten_frei_nur_erwachsen) VALUES(?,?,?,?,?,?,?,?,?,?,?) '''
@@ -89,8 +102,15 @@ def add_fallzahl(fall):
             cur.execute(sql, (fall.datum,fall.bundesland,fall.gemeindeschluessel,fall.anzahl_standorte,fall.anzahl_meldebereiche,fall.faelle_covid_aktuell,fall.faelle_covid_aktuell_invasiv_beatmet,fall.betten_frei,fall.betten_belegt,fall.betten_belegt_nur_erwachsen,fall.betten_frei_nur_erwachsen))
             conn.commit()
         conn.close()
-    except:
-        pass
+    except Exception as e:
+        print(e)
+        conn.close()
+        lock.release()
+        threadLimiter.release()
+    finally:
+        lock.release()
+        threadLimiter.release()
+
 
 #
 # Krankenhaus SQL Methoden
@@ -125,6 +145,8 @@ def bettenstatus_not_exists(conn, date):
 
 def add_kh(kh):
     try:
+        threadLimiter.acquire()
+        lock.acquire(True)
         conn = create_connection()
         if kh_not_exists(conn, kh.id):
             sql = ''' INSERT INTO krankenhaus(id,bezeichnung,strasse,plz,ort,bundesland,ikNummer,position,gemeindeschluessel) VALUES(?,?,?,?,?,?,?,?,?) '''
@@ -145,5 +167,18 @@ def add_kh(kh):
             cur.execute(sql, (kh.id,kh.maxBettenStatusEinschaetzungEcmo,kh.maxBettenStatusEinschaetzungHighCare,kh.maxBettenStatusEinschaetzungLowCare,kh.letzteMeldezeitpunkt))
             conn.commit()
         conn.close()
-    except:
-        pass
+    except Exception as e:
+        print(e)
+        conn.close()
+        lock.release()
+        threadLimiter.release()
+    finally:
+        lock.release()
+        threadLimiter.release()
+
+def execute_sql(sql):
+    conn = create_connection()
+    cur = conn.cursor()
+    cur.execute(sql)
+    conn.commit()
+    conn.close()
