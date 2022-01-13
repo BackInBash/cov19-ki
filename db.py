@@ -170,6 +170,56 @@ def create_struct():
                                     dosen integer NOT NULL,
                                     einrichtung text NOT NULL                                   
                                 );"""
+    
+    impf_zahlen = """CREATE TABLE IF NOT EXISTS impfzahlen (
+                                    id integer PRIMARY KEY AUTOINCREMENT,
+                                    date text NULL,
+                                    dosen_kumulativ integer NULL,
+                                    dosen_biontech_kumulativ integer NULL,
+                                    dosen_biontech_erst_kumulativ integer NULL,
+                                    dosen_biontech_zweit_kumulativ integer NULL,
+                                    dosen_biontech_dritt_kumulativ integer NULL,
+                                    dosen_moderna_kumulativ integer NULL,
+                                    dosen_moderna_erst_kumulativ integer NULL,
+                                    dosen_moderna_zweit_kumulativ integer NULL,
+                                    dosen_moderna_dritt_kumulativ integer NULL,
+                                    dosen_astra_kumulativ integer NULL,
+                                    dosen_astra_erst_kumulativ integer NULL,
+                                    dosen_astra_zweit_kumulativ integer NULL,
+                                    dosen_astra_dritt_kumulativ integer NULL,
+                                    dosen_johnson_kumulativ integer NULL,
+                                    dosen_johnson_erst_kumulativ integer NULL,
+                                    dosen_johnson_zweit_kumulativ integer NULL,
+                                    dosen_johnson_dritt_kumulativ integer NULL,
+                                    dosen_erst_kumulativ integer NULL,
+                                    dosen_zweit_kumulativ integer NULL,
+                                    dosen_dritt_kumulativ integer NULL,
+                                    dosen_differenz_zum_vortag integer NULL,
+                                    dosen_erst_differenz_zum_vortag integer NULL,
+                                    dosen_zweit_differenz_zum_vortag integer NULL,
+                                    dosen_dritt_differenz_zum_vortag integer NULL,
+                                    dosen_vollstaendig_differenz_zum_vortag integer NULL,
+                                    dosen_erst_unvollstaendig_differenz_zum_vortag integer NULL,
+                                    personen_erst_kumulativ integer NULL,
+                                    personen_voll_kumulativ integer NULL,
+                                    personen_auffrisch_kumulativ integer NULL,
+                                    impf_quote_erst integer NULL,
+                                    impf_quote_voll integer NULL,
+                                    dosen_dim_kumulativ integer NULL,
+                                    dosen_kbv_kumulativ integer NULL,
+                                    indikation_alter_dosen integer NULL,
+                                    indikation_beruf_dosen integer NULL,
+                                    indikation_medizinisch_dosen integer NULL,
+                                    indikation_pflegeheim_dosen integer NULL,
+                                    indikation_alter_erst integer NULL,
+                                    indikation_beruf_erst integer NULL,
+                                    indikation_medizinisch_erst integer NULL,
+                                    indikation_pflegeheim_erst integer NULL,
+                                    indikation_alter_voll integer NULL,
+                                    indikation_beruf_voll integer NULL,
+                                    indikation_medizinisch_voll integer NULL,
+                                    indikation_pflegeheim_voll integer NULL                                
+                                );"""
 
     try:
         conn.execute(kh_liste)
@@ -178,6 +228,7 @@ def create_struct():
         conn.execute(fallzahlen)
         conn.execute(cwa)
         conn.execute(impf_lieferung)
+        conn.execute(impf_zahlen)
         conn.close()
     except:
         print("Error Creating schama")

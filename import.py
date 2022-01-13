@@ -54,6 +54,16 @@ class Fallzahlen:
 
 threads = []
 
+def import_impfzahlen():
+    data = csv.reader(StringIO(requests.get("https://impfdashboard.de/static/data/germany_vaccinations_timeseries_v2.tsv").text))
+    sql = """INSERT INTO "impfzahlen" ("date","dosen_kumulativ","dosen_biontech_kumulativ","dosen_biontech_erst_kumulativ","dosen_biontech_zweit_kumulativ","dosen_biontech_dritt_kumulativ","dosen_moderna_kumulativ","dosen_moderna_erst_kumulativ","dosen_moderna_zweit_kumulativ","dosen_moderna_dritt_kumulativ","dosen_astra_kumulativ","dosen_astra_erst_kumulativ","dosen_astra_zweit_kumulativ","dosen_astra_dritt_kumulativ","dosen_johnson_kumulativ","dosen_johnson_erst_kumulativ","dosen_johnson_zweit_kumulativ","dosen_johnson_dritt_kumulativ","dosen_erst_kumulativ","dosen_zweit_kumulativ","dosen_dritt_kumulativ","dosen_differenz_zum_vortag","dosen_erst_differenz_zum_vortag","dosen_zweit_differenz_zum_vortag","dosen_dritt_differenz_zum_vortag","dosen_vollstaendig_differenz_zum_vortag","dosen_erst_unvollstaendig_differenz_zum_vortag","personen_erst_kumulativ","personen_voll_kumulativ","personen_auffrisch_kumulativ","impf_quote_erst","impf_quote_voll","dosen_dim_kumulativ","dosen_kbv_kumulativ","indikation_alter_dosen","indikation_beruf_dosen","indikation_medizinisch_dosen","indikation_pflegeheim_dosen","indikation_alter_erst","indikation_beruf_erst","indikation_medizinisch_erst","indikation_pflegeheim_erst","indikation_alter_voll","indikation_beruf_voll","indikation_medizinisch_voll","indikation_pflegeheim_voll") VALUES """
+    next(data)
+    for row in data:
+        tsv = row[0].split('\t')
+        sql = sql+"('"+tsv[0]+"','"+tsv[1]+"',"+str(tsv[2])+","+str(tsv[3])+","+str(tsv[4])+","+str(tsv[5])+","+str(tsv[6])+","+str(tsv[7])+","+str(tsv[8])+","+str(tsv[9])+","+str(tsv[10])+","+str(tsv[11])+","+str(tsv[12])+","+str(tsv[13])+","+str(tsv[14])+","+str(tsv[15])+","+str(tsv[16])+","+str(tsv[17])+","+str(tsv[18])+","+str(tsv[19])+","+str(tsv[20])+","+str(tsv[21])+","+str(tsv[22])+","+str(tsv[23])+","+str(tsv[24])+","+str(tsv[25])+","+str(tsv[26])+","+str(tsv[27])+","+str(tsv[28])+","+str(tsv[29])+","+str(tsv[30])+","+str(tsv[31])+","+str(tsv[32])+","+str(tsv[33])+","+str(tsv[34])+","+str(tsv[35])+","+str(tsv[36])+","+str(tsv[37])+","+str(tsv[38])+","+str(tsv[39])+","+str(tsv[40])+","+str(tsv[41])+","+str(tsv[42])+","+str(tsv[43])+","+str(tsv[44])+","+str(tsv[45])+"),"
+    sql = re.sub(r'.$', ';', sql)
+    execute_sql(sql)
+
 def import_impf_lieferung():
     data = csv.reader(StringIO(requests.get("https://impfdashboard.de/static/data/germany_deliveries_timeseries_v2.tsv").text))
     sql = """INSERT INTO "impflieferung" ("date","impfstoff","region","dosen","einrichtung") VALUES """
@@ -132,6 +142,7 @@ import_kh()
 csv_import_landkreis()
 import_cwa()
 import_impf_lieferung()
+import_impfzahlen()
 
 for t in threads:
     t.join()
