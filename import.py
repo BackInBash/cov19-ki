@@ -62,10 +62,6 @@ threads = []
 
 
 def import_covid_zahlen():
-    threadLimiter = threading.BoundedSemaphore(48)
-    lock = threading.Lock()
-    thread = list()
-
     data = csv.reader(StringIO(requests.get(
         "https://media.githubusercontent.com/media/robert-koch-institut/SARS-CoV-2_Infektionen_in_Deutschland/master/Aktuell_Deutschland_SarsCov2_Infektionen.csv").text))
     sql = """INSERT INTO "covid" ("IdLandkreis","Altersgruppe","Geschlecht","Meldedatum","Refdatum","IstErkrankungsbeginn","NeuerFall","NeuerTodesfall","NeuGenesen","AnzahlFall","AnzahlTodesfall","AnzahlGenesen") VALUES """
@@ -76,9 +72,6 @@ def import_covid_zahlen():
             ","+str(row[6])+","+str(row[7])+","+str(row[8])+"," + \
             str(row[9])+","+str(row[10])+","+str(row[11])+"),"
     
-    for t in thread:
-        t.join()
-
     sql = re.sub(r'.$', ';', sql)
     execute_sql(sql)
 
