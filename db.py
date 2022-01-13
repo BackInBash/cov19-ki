@@ -6,6 +6,7 @@ import threading
 threadLimiter = threading.BoundedSemaphore(2)
 lock = threading.Lock()
 
+
 def create_connection():
     """ create a database connection to a SQLite database """
     conn = None
@@ -15,11 +16,13 @@ def create_connection():
     except Error as e:
         print(e)
 
+
 def write_to_file():
     con = create_connection()
     with open('dump.sql', 'w') as f:
         for line in con.iterdump():
             f.write('%s\n' % line)
+
 
 def create_struct():
     conn = create_connection()
@@ -68,7 +71,7 @@ def create_struct():
                                     betten_belegt_nur_erwachsen integer NOT NULL,
                                     betten_frei_nur_erwachsen integer NOT NULL
                                 );"""
-                                
+
     cwa = """CREATE TABLE IF NOT EXISTS cwa (
                                     id integer PRIMARY KEY AUTOINCREMENT,
                                     effective_date text NULL,
@@ -170,7 +173,7 @@ def create_struct():
                                     dosen integer NOT NULL,
                                     einrichtung text NOT NULL                                   
                                 );"""
-    
+
     impf_zahlen = """CREATE TABLE IF NOT EXISTS impfzahlen (
                                     id integer PRIMARY KEY AUTOINCREMENT,
                                     date text NULL,
@@ -221,6 +224,22 @@ def create_struct():
                                     indikation_pflegeheim_voll integer NULL                                
                                 );"""
 
+    covid_zahlen = """CREATE TABLE IF NOT EXISTS covid (
+                                    id integer PRIMARY KEY AUTOINCREMENT,
+                                    IdLandkreis integer NOT NULL,
+                                    Altersgruppe text NOT NULL,
+                                    Geschlecht text NOT NULL,
+                                    Meldedatum text NOT NULL,
+                                    Refdatum text NOT NULL,
+                                    IstErkrankungsbeginn integer NOT NULL,
+                                    NeuerFall integer NOT NULL,
+                                    NeuerTodesfall integer NOT NULL,
+                                    NeuGenesen integer NOT NULL,
+                                    AnzahlFall integer NOT NULL,
+                                    AnzahlTodesfall integer NOT NULL,
+                                    AnzahlGenesen integer NOT NULL                              
+                                );"""
+
     try:
         conn.execute(kh_liste)
         conn.execute(kh_meldebereiche)
@@ -229,6 +248,7 @@ def create_struct():
         conn.execute(cwa)
         conn.execute(impf_lieferung)
         conn.execute(impf_zahlen)
+        conn.execute(covid_zahlen)
         conn.close()
     except:
         print("Error Creating schama")
@@ -237,6 +257,7 @@ def create_struct():
 #
 # Fallzahlen SQL Methoden
 #
+
 
 def fallzahl_not_exists(conn, date):
     cur = conn.cursor()
@@ -247,6 +268,7 @@ def fallzahl_not_exists(conn, date):
     else:
         return False
 
+
 def add_fallzahl(fall):
     try:
         threadLimiter.acquire()
@@ -255,7 +277,8 @@ def add_fallzahl(fall):
         if fallzahl_not_exists(conn, fall.datum):
             sql = ''' INSERT INTO fallzahlen(datum,bundesland,gemeindeschluessel,anzahl_standorte,anzahl_meldebereiche,faelle_covid_aktuell,faelle_covid_aktuell_invasiv_beatmet,betten_frei,betten_belegt,betten_belegt_nur_erwachsen,betten_frei_nur_erwachsen) VALUES(?,?,?,?,?,?,?,?,?,?,?) '''
             cur = conn.cursor()
-            cur.execute(sql, (fall.datum,fall.bundesland,fall.gemeindeschluessel,fall.anzahl_standorte,fall.anzahl_meldebereiche,fall.faelle_covid_aktuell,fall.faelle_covid_aktuell_invasiv_beatmet,fall.betten_frei,fall.betten_belegt,fall.betten_belegt_nur_erwachsen,fall.betten_frei_nur_erwachsen))
+            cur.execute(sql, (fall.datum, fall.bundesland, fall.gemeindeschluessel, fall.anzahl_standorte, fall.anzahl_meldebereiche, fall.faelle_covid_aktuell,
+                        fall.faelle_covid_aktuell_invasiv_beatmet, fall.betten_frei, fall.betten_belegt, fall.betten_belegt_nur_erwachsen, fall.betten_frei_nur_erwachsen))
             conn.commit()
         conn.close()
     except Exception as e:
@@ -281,6 +304,7 @@ def meldebereich_not_exists(conn, id):
     else:
         return False
 
+
 def kh_not_exists(conn, id):
     cur = conn.cursor()
     cur.execute("SELECT * FROM krankenhaus WHERE id = ?", (id,))
@@ -290,14 +314,17 @@ def kh_not_exists(conn, id):
     else:
         return False
 
+
 def bettenstatus_not_exists(conn, date):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM bettenstatus WHERE letzteMeldezeitpunkt = ?", (date,))
+    cur.execute(
+        "SELECT * FROM bettenstatus WHERE letzteMeldezeitpunkt = ?", (date,))
     rows = cur.fetchall()
     if len(rows) == 0:
         return True
     else:
         return False
+
 
 def add_kh(kh):
     try:
@@ -307,20 +334,23 @@ def add_kh(kh):
         if kh_not_exists(conn, kh.id):
             sql = ''' INSERT INTO krankenhaus(id,bezeichnung,strasse,plz,ort,bundesland,ikNummer,position,gemeindeschluessel) VALUES(?,?,?,?,?,?,?,?,?) '''
             cur = conn.cursor()
-            cur.execute(sql, (kh.id,kh.bezeichnung,kh.strasse,kh.plz,kh.ort,kh.bundesland,kh.ikNummer,kh.position,kh.gemeindeschluessel))
+            cur.execute(sql, (kh.id, kh.bezeichnung, kh.strasse, kh.plz, kh.ort,
+                        kh.bundesland, kh.ikNummer, kh.position, kh.gemeindeschluessel))
             conn.commit()
 
-        for meldebereich in kh.meldebereiche: 
+        for meldebereich in kh.meldebereiche:
             if meldebereich_not_exists(conn, meldebereich.meldebereichId):
                 sql = ''' INSERT INTO meldebereiche(meldebereichId,kh_id,ardsNetzwerkMitglied,meldebereichBezeichnung,behandlungsschwerpunktL1,behandlungsschwerpunktL2,behandlungsschwerpunktL3) VALUES(?,?,?,?,?,?,?) '''
                 cur = conn.cursor()
-                cur.execute(sql, (meldebereich.meldebereichId,kh.id,meldebereich.ardsNetzwerkMitglied,meldebereich.meldebereichBezeichnung,meldebereich.behandlungsschwerpunktL1,meldebereich.behandlungsschwerpunktL2,meldebereich.behandlungsschwerpunktL3))
+                cur.execute(sql, (meldebereich.meldebereichId, kh.id, meldebereich.ardsNetzwerkMitglied, meldebereich.meldebereichBezeichnung,
+                            meldebereich.behandlungsschwerpunktL1, meldebereich.behandlungsschwerpunktL2, meldebereich.behandlungsschwerpunktL3))
                 conn.commit()
 
         if bettenstatus_not_exists(conn, kh.letzteMeldezeitpunkt):
             sql = ''' INSERT INTO bettenstatus(kh_id,maxBettenStatusEinschaetzungEcmo,maxBettenStatusEinschaetzungHighCare,maxBettenStatusEinschaetzungLowCare,letzteMeldezeitpunkt) VALUES(?,?,?,?,?) '''
             cur = conn.cursor()
-            cur.execute(sql, (kh.id,kh.maxBettenStatusEinschaetzungEcmo,kh.maxBettenStatusEinschaetzungHighCare,kh.maxBettenStatusEinschaetzungLowCare,kh.letzteMeldezeitpunkt))
+            cur.execute(sql, (kh.id, kh.maxBettenStatusEinschaetzungEcmo, kh.maxBettenStatusEinschaetzungHighCare,
+                        kh.maxBettenStatusEinschaetzungLowCare, kh.letzteMeldezeitpunkt))
             conn.commit()
         conn.close()
     except Exception as e:
@@ -331,6 +361,7 @@ def add_kh(kh):
     finally:
         lock.release()
         threadLimiter.release()
+
 
 def execute_sql(sql):
     conn = create_connection()
