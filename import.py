@@ -54,9 +54,18 @@ class Fallzahlen:
 
 threads = []
 
+def import_impf_lieferung():
+    data = csv.reader(StringIO(requests.get("https://impfdashboard.de/static/data/germany_deliveries_timeseries_v2.tsv").text))
+    sql = """INSERT INTO "impflieferung" ("date","impfstoff","region","dosen","einrichtung") VALUES """
+    next(data)
+    for row in data:
+        tsv = row[0].split('\t')
+        sql = sql+"('"+tsv[0]+"','"+tsv[1]+"','"+tsv[2]+"','"+tsv[3]+"','"+tsv[4]+"'),"
+    sql = re.sub(r'.$', ';', sql)
+    execute_sql(sql)
+
 def import_cwa():
     data = requests.get("https://obs.eu-de.otc.t-systems.com/obs-public-dashboard/json/v1/nested_cwa_public_dashboard_data.json").json()
-    keys = list()
 
     sql = """INSERT INTO "cwa" ("effective_date","update_timestamp","infections_published_daily","app_downloads_cumulated","app_downloads_android_cumulated","app_downloads_ios_cumulated","app_downloads_daily","app_downloads_android_daily","app_downloads_ios_daily","app_downloads_7days_avg","app_downloads_7days_sum","app_downloads_android_7days_avg","app_downloads_android_7days_sum","app_downloads_ios_7days_avg","app_downloads_ios_7days_sum","tests_total_cumulated","tests_total_daily","tests_total_7days_avg","tests_pcr_total_cumulated","tests_pcr_positive_cumulated","tests_pcr_negative_cumulated","tests_pcr_invalide_cumulated","tests_pcr_total_daily","tests_pcr_positive_daily","tests_pcr_negative_daily","tests_pcr_invalide_daily","tests_pcr_total_7days_avg","tests_pcr_positive_7days_avg","tests_pcr_negative_7days_avg","tests_pcr_invalide_7days_avg","tests_pcr_total_7days_sum","tests_pcr_positive_7days_sum","tests_pcr_negative_7days_sum","tests_pcr_invalide_7days_sum","tests_rat_total_cumulated","tests_rat_positive_cumulated","tests_rat_negative_cumulated","tests_rat_invalide_cumulated","tests_rat_total_daily","tests_rat_positive_daily","tests_rat_negative_daily","tests_rat_invalide_daily","tests_rat_total_7days_avg","tests_rat_positive_7days_avg","tests_rat_negative_7days_avg","tests_rat_invalide_7days_avg","tests_rat_total_7days_sum","tests_rat_positive_7days_sum","tests_rat_negative_7days_sum","tests_rat_invalide_7days_sum","qr_redeemable_cumulated","qr_redeemed_cumulated","qr_not_redeemed_cumulated","qr_redeemable_daily","qr_redeemed_daily","qr_not_redeemed_daily","qr_redeemable_7days_avg","qr_redeemed_7days_avg","qr_not_redeemed_7days_avg","qr_redeemable_7days_sum","qr_not_redeemed_7days_sum","qr_redeemed_7days_sum","teletan_redeemable_cumulated","teletan_redeemed_cumulated","teletan_not_redeemed_cumulated","teletan_redeemable_daily","teletan_redeemed_daily","teletan_not_redeemed_daily","teletan_redeemable_7days_avg","teletan_redeemed_7days_avg","teletan_not_redeemed_7days_avg","teletan_redeemable_7days_sum","teletan_not_redeemed_7days_sum","teletan_redeemed_7days_sum","qr_teletan_redeemable_cumulated","qr_teletan_redeemable_daily","qr_teletan_redeemable_7days_avg","qr_teletan_redeemable_7days_sum","ppa_total_warnings_daily","ppa_risk_red_daily","ppa_risk_green_daily","ppa_total_warnings_cumulated","ppa_risk_red_cumulated","ppa_risk_green_cumulated","ppa_risk_red_7days_sum","ppa_risk_green_7days_sum","ppa_total_warnings_7days_avg","ppa_risk_red_7days_avg","ppa_risk_green_7days_avg") VALUES """
     for row in data[0]['data']['daily']:
@@ -122,6 +131,7 @@ create_struct()
 import_kh()
 csv_import_landkreis()
 import_cwa()
+import_impf_lieferung()
 
 for t in threads:
     t.join()

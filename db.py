@@ -68,6 +68,7 @@ def create_struct():
                                     betten_belegt_nur_erwachsen integer NOT NULL,
                                     betten_frei_nur_erwachsen integer NOT NULL
                                 );"""
+                                
     cwa = """CREATE TABLE IF NOT EXISTS cwa (
                                     id integer PRIMARY KEY AUTOINCREMENT,
                                     effective_date text NULL,
@@ -160,12 +161,23 @@ def create_struct():
                                     ppa_risk_red_7days_avg integer NULL,
                                     ppa_risk_green_7days_avg integer NULL
                                 );"""
+
+    impf_lieferung = """CREATE TABLE IF NOT EXISTS impflieferung (
+                                    id integer PRIMARY KEY AUTOINCREMENT,
+                                    date text NOT NULL,
+                                    impfstoff text NOT NULL,
+                                    region text NOT NULL,
+                                    dosen integer NOT NULL,
+                                    einrichtung text NOT NULL                                   
+                                );"""
+
     try:
         conn.execute(kh_liste)
         conn.execute(kh_meldebereiche)
         conn.execute(kh_status)
         conn.execute(fallzahlen)
         conn.execute(cwa)
+        conn.execute(impf_lieferung)
         conn.close()
     except:
         print("Error Creating schama")
