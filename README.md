@@ -9,3 +9,8 @@ Im Datensatz sind die folgenden Punkte enthalten:
 + [Cov19 Fallzahlen](https://github.com/robert-koch-institut/SARS-CoV-2_Infektionen_in_Deutschland)
 
 Aktuelle Releases können [hier](https://github.com/BackInBash/cov19-ki/releases) heruntergeladen werden.
+
+## ER Diagramm
+Folgende Tabellen und Spalten bietet die Datenbank
+
+![](ER-Diagram.bmp)
