@@ -13,4 +13,4 @@ Aktuelle Releases können [hier](https://github.com/BackInBash/cov19-ki/releases
 ## ER Diagramm
 Folgende Tabellen und Spalten bietet die Datenbank
 
-![](ER-Diagram.bmp)
+![](ER-Diagramm.bmp)
