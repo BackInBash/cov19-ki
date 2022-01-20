@@ -15,3 +15,12 @@ def kreisid(id):
         if row == id:
             return str(data[row][0][0])
     return ""
+
+def landid(id):
+    file = open("data/landid.json", "r+")
+    data = json.load(file)
+    file.close()
+    for row in data:
+        if row == id:
+            return str(data[row])
+    return ""

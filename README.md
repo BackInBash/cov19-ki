@@ -19,3 +19,20 @@ Folgende Tabellen und Spalten bietet die Datenbank
 
 ### Fälle der letzen 30 Tage aller Landkreise
 ![](data/30_days_landkreis.png)
+
+### ICU Auslastung
+
+![](data/icu_b.png)
+![](data/icu_s.png)
+![](data/icu_ba.png)
+![](data/icu_br.png)
+![](data/icu_bw.png)
+![](data/icu_he.png)
+![](data/icu_hh.png)
+![](data/icu_mv.png)
+![](data/icu_ns.png)
+![](data/icu_rp.png)
+![](data/icu_sa.png)
+![](data/icu_sh.png)
+![](data/icu_nrw.png)
+![](data/icu_sar.png)
