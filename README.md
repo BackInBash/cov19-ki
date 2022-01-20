@@ -14,3 +14,8 @@ Aktuelle Releases können [hier](https://github.com/BackInBash/cov19-ki/releases
 Folgende Tabellen und Spalten bietet die Datenbank
 
 ![](ER-Diagramm.bmp)
+
+## Auswertungen
+
+### Fälle der letzen 30 Tage aller Landkreise
+![](data/30_days_landkreis.png)
